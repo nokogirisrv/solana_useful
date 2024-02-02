@@ -31,7 +31,7 @@ systemctl restart solana
 firstly check when your block >>
 ```bash
 sudo su
-solana-install init 1.16.26
+solana-install init 1.17.18
 solana-validator --ledger /root/solana/ledger wait-for-restart-window && systemctl restart solana
 ```
 fast catchup after restart
@@ -60,7 +60,7 @@ download if you need
 git clone https://github.com/jito-foundation/jito-solana.git
 ```
 ```bash
-export TAG=v1.17.16-jito # tag
+export TAG=v1.17.18-jito # tag
 ```
 ```bash
 cd jito-solana
@@ -402,7 +402,7 @@ nano /etc/fstab
 ```
 ```bash
 /swapfile none swap sw 0 0
-tmpfs /mnt/ramdisk tmpfs nodev,nosuid,noexec,nodiratime,size=256G 0 0
+tmpfs /mnt/ramdisk tmpfs nodev,nosuid,noexec,nodiratime,size=128G 0 0
 ``` 
 ```bash
 mkdir -p /mnt/ramdisk
@@ -422,8 +422,6 @@ nano /etc/systemd/system/solana.service
 ```bash
 ufw allow 22
 ufw allow 8000/tcp
-ufw allow 8899/tcp
-ufw allow 8900/tcp
 ufw allow 8000:8020/tcp
 ufw allow 8000:8020/udp
 
@@ -442,10 +440,6 @@ testnet
 ```bash
 ufw allow 22
 ufw allow 8000/tcp
-ufw allow 8899/tcp
-ufw allow 8900/tcp
-ufw allow 9000:9020/tcp
-ufw allow 9000:9020/udp
 ufw allow 9050:9070/tcp
 ufw allow 9050:9070/udp
 ```

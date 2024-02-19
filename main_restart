@@ -1,0 +1,46 @@
+## halt stop 
+```
+apt install screen -y
+screen -S halt
+```
+
+### Instruction is written for an appendics
+
+ Install new version
+```
+solana-install init v1.17.20
+```
+stop service, delete ledger
+```bash
+systemctl stop solana
+rm -rf /mnt/data2/solana/snapshots/snapshot-24646*
+```
+download appropriate snapshot
+```bash
+wget --trust-server-names https://storage.googleapis.com/jito-mainnet/snapshot-246464040-9kmqknr1D8pQXn92dWMDWvfZ9nwzgxRQ6JnbUrG3KN4F.tar.zst -P /mnt/data2/solana/snapshots/
+```
+change service parameters
+```bash
+nano /etc/systemd/system/solana.service
+```
+```
+ --wait-for-supermajority 246464040 \
+ --expected-shred-version 50093 \
+ --expected-bank-hash 2QEvYhBgeWPJbC84fMTTK9NgntqiUAWiBEBf21rtTmng \
+```
+#restart solana service
+
+```bash
+systemctl daemon-reload
+systemctl restart solana
+```
+## check the log and WAIT 2-3 min
+```bash
+tail -f ~/solana/solana.log | grep 'Waiting for'
+```
+
+If you see this logs output after a while
+```bash
+[2023-11-30T01:56:08.057158618Z INFO  solana_core::validator] Waiting for 80% of activated stake at slot 237692256 to be in gossip...
+```
+you are good to go =)

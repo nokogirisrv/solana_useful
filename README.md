@@ -1,9 +1,13 @@
 # solana_useful
 Useful to run solana validator
 
+[Jito Upgrading](https://github.com/web3validator/solana_useful/blob/main/README.md#jito-upgrading)
+
+[Mainnet service](https://github.com/web3validator/solana_useful/blob/main/README.md#mainnet-service)
+
 Check this link https://teletype.in/@in_extremo/solana_useful
 ```bash
-sh -c "$(curl -sSfL https://release.solana.com/v1.17.17/install)"
+sh -c "$(curl -sSfL https://release.solana.com/v1.17.22/install)"
 ```
 # add solana into PATH
 ```bash
@@ -31,7 +35,7 @@ systemctl restart solana
 firstly check when your block >>
 ```bash
 sudo su
-solana-install init 1.17.18
+solana-install init 1.17.22
 solana-validator --ledger /root/solana/ledger wait-for-restart-window && systemctl restart solana
 ```
 fast catchup after restart
@@ -42,7 +46,12 @@ or
 ```bash
 solana-validator --ledger /mnt/data/solana/ledger exit && systemctl daemon-reload && systemctl restart solana
 ```
-# Jito Upgrading 
+# Jito Things 
+
+### INSTALATTION 
+
+(you don't need this one if you wanna just upgrade)
+
 install rust
 ```bash
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
@@ -59,8 +68,9 @@ download if you need
 ```bash
 git clone https://github.com/jito-foundation/jito-solana.git
 ```
+# Jito Upgrading 
 ```bash
-export TAG=v1.17.18-jito # tag
+export TAG=v1.17.22-jito # tag
 ```
 ```bash
 cd jito-solana
@@ -69,13 +79,29 @@ git checkout tags/$TAG
 git submodule update --init --recursive
 CI_COMMIT=$(git rev-parse HEAD) scripts/cargo-install-all.sh ~/.local/share/solana/install/releases/"$TAG"
 ```
-change path to the version in your service file
+delete old active_release and substite to the new_one
+
 ```bash
-nano /etc/systemd/system/solana.service
+cd ~/.local/share/solana/install/releases && rm -rf active_release && mv $TAG active_release
+```
+check that version is correct
+
+```bash
+/root/.local/share/solana/install/releases/active_release/bin/solana -V
 ```
 fast catchup after restart
 ```bash
-solana-validator --ledger /mnt/data/solana/ledger wait-for-restart-window && systemctl daemon-reload && systemctl restart solana
+solana-validator --ledger /mnt/data/solana/ledger exit && systemctl daemon-reload && systemctl restart solana
+```
+
+check logs
+```bash
+tail -f ~/solana/solana.log
+```
+
+check catchup
+```bash
+solana catchup --our-localhost
 ```
 
 # increase nofile

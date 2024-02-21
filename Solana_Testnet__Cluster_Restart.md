@@ -1,41 +1,67 @@
-## halt stop 
-```
-apt install screen -y
-screen -S halt
-```
-```
-sudo su
-screen -S halt
-wget https://raw.githubusercontent.com/web3validator/solana_useful/main/halt_validator_at_epoch.sh
-chmod +x halt_validator_at_epoch.sh
-./halt_validator_at_epoch.sh 579
-```
+
 
 ### Instruction is written for an appendics
 
  Install new version
 ```
-solana-install init v1.16.24
+solana-install init v1.18.2
 ```
 stop service, delete ledger
 ```bash
 systemctl stop solana
-rm -rf $HOME/solana/ledger/*
+rm -rf $HOME/solana/ledger/snapshot-*
+rm -rf $HOME/solana/ledger/incremental-*
 ```
 download appropriate snapshot
 ```bash
-wget --trust-server-names http://testnet.solana.margus.one/snapshot.tar.bz2 -P $HOME/solana/ledger/
+wget --trust-server-names -P $HOME/ttt http://testnet.solana.margus.one/snapshot.tar.bz2 -P $HOME/solana/ledger/
 ```
 change service parameters
 ```bash
+rm /etc/systemd/system/solana.service
 nano /etc/systemd/system/solana.service
 ```
 ```
+[Unit]
+Description=Solana testnet node
+After=network.target syslog.target
+StartLimitIntervalSec=0
+[Service]
+Type=simple
+Restart=always
+RestartSec=1
+LimitNOFILE=2048000
+Environment="SOLANA_METRICS_CONFIG=host=https://metrics.solana.com:8086,db=tds,u=testnet_write,p=c4fa841aa918bf8274e3e2a44d77568d9861b3ea"
+ExecStart=/root/.local/share/solana/install/active_release/bin/solana-validator \
+--entrypoint entrypoint.testnet.solana.com:8001 \
+--entrypoint entrypoint2.testnet.solana.com:8001 \
+--entrypoint entrypoint3.testnet.solana.com:8001 \
 --known-validator 5D1fNXzvv5NjV1ysLjirC4WY92RNsVH18vjmcszZd8on \
---expected-shred-version 14676 \
+--known-validator 7XSY3MrYnK8vq693Rju17bbPkCN3Z7KvvfvJx4kdrsSY \
+--known-validator Ft5fbkqNa76vnsjYNwjDZUXoTWpP7VYm3mtsaQckQADN \
+--known-validator 9QxCLckBiJc783jnMvXZubK4wH86Eqqvashtrwvcsgkv \
 --expected-genesis-hash 4uhcVJyU9pJkvQyS88uRDiswHXSCkY3zQawwpjk2NsNY \
---wait-for-supermajority 244604256 \
---expected-bank-hash 2ZHZpzSpBhkbfqsENGybfLbXSZ2hZiTq79qHCM4TWBpi \
+--only-known-rpc \
+--wal-recovery-mode skip_any_corrupted_record \
+--identity /root/solana/validator-keypair.json \
+--vote-account /root/solana/vote-account-keypair.json \
+--ledger /root/solana/ledger \
+--limit-ledger-size 50000000 \
+--dynamic-port-range 9050-9070 \
+--log /root/solana/solana.log \
+--full-snapshot-interval-slots 25000 \
+--incremental-snapshot-interval-slots 500 \
+--no-port-check \
+--rpc-port 8899 \
+--full-rpc-api \
+--private-rpc \
+--wait-for-supermajority 254108257 \
+--expected-shred-version 35459 \
+--expected-bank-hash 4rWEDhTyQVgTw6sPoCthXmUNmjeiwsdKQ5ZNvpEi3uvk 
+ExecReload=/bin/kill -s HUP $MAINPID
+ExecStop=/bin/kill -s QUIT $MAINPID
+[Install]
+WantedBy=multi-user.target
 ```
 #restart solana service
 

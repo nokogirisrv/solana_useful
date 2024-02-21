@@ -19,8 +19,6 @@ source ~/.bashrc
 # check when your block
 
 ```bash
-sudo su
-solana -V
 tail -f $HOME/solana/solana.log | awk -v pattern="`solana address`.+within slot" '$0 ~ pattern {printf "%d hr. %d min. %d sec.\n", ($18-$12)*0.459/3600, ($18-$12)*0.459/60-int((($18-$12)*0.459/3600))*60, ($18-$12)*0.459-int((($18-$12)*0.459/3600))*3600-int((($18-$12)*0.459/60))*60}'
 
 ```
@@ -34,7 +32,6 @@ systemctl restart solana
 # Easy UPDATE
 firstly check when your block >>
 ```bash
-sudo su
 solana-install init 1.17.22
 solana-validator --ledger /root/solana/ledger wait-for-restart-window && systemctl restart solana
 ```
